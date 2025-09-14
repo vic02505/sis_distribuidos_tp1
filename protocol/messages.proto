@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package messages;
+option go_package = "tp1/protocol/messages";
+
+service Server{
+    rpc AskForWork(ImFree) returns (AskForWorkResponse);
+}
+
+message ImFree{
+    string content = 1;
+}
+
+message AskForWorkResponse{
+    string response = 1;
+}
