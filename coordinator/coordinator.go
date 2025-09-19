@@ -1,42 +1,13 @@
 package main
 
 import (
-	"context"
-	"log"
-	"net"
-	pb "tp1/protocol/messages"
-
-	"google.golang.org/grpc"
+	"os"
+	"tp1/coordinator/internal/communications"
 )
 
-type Server struct {
-	pb.UnimplementedServerServer
-	assignedWorkers []string
-}
-
-func (s *Server) AskForWork(ctx context.Context, req *pb.ImFree) (*pb.AskForWorkResponse, error) {
-	if len(s.assignedWorkers) < 3 {
-		s.assignedWorkers = append(s.assignedWorkers, req.Content)
-		return &pb.AskForWorkResponse{Response: "Work"}, nil
-	} else {
-		return &pb.AskForWorkResponse{Response: "No work"}, nil
-	}
-}
-
 func main() {
-	socketPath := "/tmp/mr-socket.sock"
+	fileSplits := os.Args[1:]
 
-	lis, err := net.Listen("unix", socketPath)
-	if err != nil {
-		log.Fatalf("Error al escuchar: %v", err)
-	}
-
-	grpcServer := grpc.NewServer()
-
-	pb.RegisterServerServer(grpcServer, &Server{})
-
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Error al servir: %v", err)
-	}
-
+	coordinator := communications.NewCoordinator(fileSplits, 4)
+	coordinator.StartCoordinator()
 }
