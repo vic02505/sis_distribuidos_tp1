@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: protocol/messages.proto
+// source: messages.proto
 
 package messages
 
@@ -117,5 +117,5 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protocol/messages.proto",
+	Metadata: "messages.proto",
 }

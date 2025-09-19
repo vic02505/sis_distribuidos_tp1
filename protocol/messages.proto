@@ -17,5 +17,6 @@ message AskForWorkResponse{
     string workType = 3;
     string filePath = 4;
     string plugin = 5;
+    string response = 6;
 }
 

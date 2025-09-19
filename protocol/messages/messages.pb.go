@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.9
 // 	protoc        v3.21.12
-// source: protocol/messages.proto
+// source: messages.proto
 
 package messages
 
@@ -30,7 +30,7 @@ type ImFree struct {
 
 func (x *ImFree) Reset() {
 	*x = ImFree{}
-	mi := &file_protocol_messages_proto_msgTypes[0]
+	mi := &file_messages_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *ImFree) String() string {
 func (*ImFree) ProtoMessage() {}
 
 func (x *ImFree) ProtoReflect() protoreflect.Message {
-	mi := &file_protocol_messages_proto_msgTypes[0]
+	mi := &file_messages_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *ImFree) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImFree.ProtoReflect.Descriptor instead.
 func (*ImFree) Descriptor() ([]byte, []int) {
-	return file_protocol_messages_proto_rawDescGZIP(), []int{0}
+	return file_messages_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ImFree) GetContent() string {
@@ -72,13 +72,14 @@ type AskForWorkResponse struct {
 	WorkType      string                 `protobuf:"bytes,3,opt,name=workType,proto3" json:"workType,omitempty"`
 	FilePath      string                 `protobuf:"bytes,4,opt,name=filePath,proto3" json:"filePath,omitempty"`
 	Plugin        string                 `protobuf:"bytes,5,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	Response      string                 `protobuf:"bytes,6,opt,name=response,proto3" json:"response,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AskForWorkResponse) Reset() {
 	*x = AskForWorkResponse{}
-	mi := &file_protocol_messages_proto_msgTypes[1]
+	mi := &file_messages_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -90,7 +91,7 @@ func (x *AskForWorkResponse) String() string {
 func (*AskForWorkResponse) ProtoMessage() {}
 
 func (x *AskForWorkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_protocol_messages_proto_msgTypes[1]
+	mi := &file_messages_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -103,7 +104,7 @@ func (x *AskForWorkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskForWorkResponse.ProtoReflect.Descriptor instead.
 func (*AskForWorkResponse) Descriptor() ([]byte, []int) {
-	return file_protocol_messages_proto_rawDescGZIP(), []int{1}
+	return file_messages_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *AskForWorkResponse) GetWorkerId() int32 {
@@ -141,42 +142,50 @@ func (x *AskForWorkResponse) GetPlugin() string {
 	return ""
 }
 
-var File_protocol_messages_proto protoreflect.FileDescriptor
+func (x *AskForWorkResponse) GetResponse() string {
+	if x != nil {
+		return x.Response
+	}
+	return ""
+}
 
-const file_protocol_messages_proto_rawDesc = "" +
+var File_messages_proto protoreflect.FileDescriptor
+
+const file_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x17protocol/messages.proto\x12\bmessages\"\"\n" +
+	"\x0emessages.proto\x12\bmessages\"\"\n" +
 	"\x06ImFree\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\tR\acontent\"\xa6\x01\n" +
+	"\acontent\x18\x01 \x01(\tR\acontent\"\xc2\x01\n" +
 	"\x12AskForWorkResponse\x12\x1a\n" +
 	"\bworkerId\x18\x01 \x01(\x05R\bworkerId\x12$\n" +
 	"\rreducerNumber\x18\x02 \x01(\x05R\rreducerNumber\x12\x1a\n" +
 	"\bworkType\x18\x03 \x01(\tR\bworkType\x12\x1a\n" +
 	"\bfilePath\x18\x04 \x01(\tR\bfilePath\x12\x16\n" +
-	"\x06plugin\x18\x05 \x01(\tR\x06plugin2F\n" +
+	"\x06plugin\x18\x05 \x01(\tR\x06plugin\x12\x1a\n" +
+	"\bresponse\x18\x06 \x01(\tR\bresponse2F\n" +
 	"\x06Server\x12<\n" +
 	"\n" +
 	"AskForWork\x12\x10.messages.ImFree\x1a\x1c.messages.AskForWorkResponseB\fZ\n" +
 	"./messagesb\x06proto3"
 
 var (
-	file_protocol_messages_proto_rawDescOnce sync.Once
-	file_protocol_messages_proto_rawDescData []byte
+	file_messages_proto_rawDescOnce sync.Once
+	file_messages_proto_rawDescData []byte
 )
 
-func file_protocol_messages_proto_rawDescGZIP() []byte {
-	file_protocol_messages_proto_rawDescOnce.Do(func() {
-		file_protocol_messages_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_protocol_messages_proto_rawDesc), len(file_protocol_messages_proto_rawDesc)))
+func file_messages_proto_rawDescGZIP() []byte {
+	file_messages_proto_rawDescOnce.Do(func() {
+		file_messages_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_messages_proto_rawDesc), len(file_messages_proto_rawDesc)))
 	})
-	return file_protocol_messages_proto_rawDescData
+	return file_messages_proto_rawDescData
 }
 
-var file_protocol_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_protocol_messages_proto_goTypes = []any{
+var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_messages_proto_goTypes = []any{
 	(*ImFree)(nil),             // 0: messages.ImFree
 	(*AskForWorkResponse)(nil), // 1: messages.AskForWorkResponse
 }
-var file_protocol_messages_proto_depIdxs = []int32{
+var file_messages_proto_depIdxs = []int32{
 	0, // 0: messages.Server.AskForWork:input_type -> messages.ImFree
 	1, // 1: messages.Server.AskForWork:output_type -> messages.AskForWorkResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -186,26 +195,26 @@ var file_protocol_messages_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_protocol_messages_proto_init() }
-func file_protocol_messages_proto_init() {
-	if File_protocol_messages_proto != nil {
+func init() { file_messages_proto_init() }
+func file_messages_proto_init() {
+	if File_messages_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protocol_messages_proto_rawDesc), len(file_protocol_messages_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_messages_proto_rawDesc), len(file_messages_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_protocol_messages_proto_goTypes,
-		DependencyIndexes: file_protocol_messages_proto_depIdxs,
-		MessageInfos:      file_protocol_messages_proto_msgTypes,
+		GoTypes:           file_messages_proto_goTypes,
+		DependencyIndexes: file_messages_proto_depIdxs,
+		MessageInfos:      file_messages_proto_msgTypes,
 	}.Build()
-	File_protocol_messages_proto = out.File
-	file_protocol_messages_proto_goTypes = nil
-	file_protocol_messages_proto_depIdxs = nil
+	File_messages_proto = out.File
+	file_messages_proto_goTypes = nil
+	file_messages_proto_depIdxs = nil
 }
