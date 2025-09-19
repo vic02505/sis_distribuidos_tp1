@@ -17,9 +17,9 @@ type Server struct {
 func (s *Server) AskForWork(ctx context.Context, req *pb.ImFree) (*pb.AskForWorkResponse, error) {
 	if len(s.assignedWorkers) < 3 {
 		s.assignedWorkers = append(s.assignedWorkers, req.Content)
-		return &pb.AskForWorkResponse{Response: "Work"}, nil
+		return &pb.AskForWorkResponse{WorkType: "Work"}, nil
 	} else {
-		return &pb.AskForWorkResponse{Response: "No work"}, nil
+		return &pb.AskForWorkResponse{WorkType: "No work"}, nil
 	}
 }
 
