@@ -5,10 +5,16 @@ option go_package = "./messages";
 
 service Server{
     rpc AskForWork(ImFree) returns (AskForWorkResponse);
+    rpc MarkWorkAsFinished(IFinished) returns(IFinishedResponse);
+}
+
+
+message IFinished{
+    string workerUuid = 1;
 }
 
 message ImFree{
-    string content = 1;
+    string workerUuid = 1;
 }
 
 message AskForWorkResponse{
@@ -20,3 +26,6 @@ message AskForWorkResponse{
     string response = 6;
 }
 
+message IFinishedResponse {
+    string response = 1;
+}

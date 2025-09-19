@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"hash/fnv"
 	"io/ioutil"
 	"log"
@@ -74,6 +75,9 @@ func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId i
 }
 
 func main() {
+
+	workerUuid := uuid.New().String()
+
 	socketPath := "/tmp/mr-socket.sock"
 	for {
 		conn, err := grpc.Dial("unix://"+socketPath, grpc.WithInsecure())
@@ -85,13 +89,13 @@ func main() {
 
 		client := pb.NewServerClient(conn)
 
-		resp, err := client.AskForWork(context.Background(), &pb.ImFree{Content: "Worker 1"})
+		resp, err := client.AskForWork(context.Background(), &pb.ImFree{WorkerUuid: workerUuid})
 		if err != nil {
 			log.Printf("Error al solicitar trabajo: %v", err)
 			continue
 		}
 
-		mapF, reduceF, err := loadPlugin(resp.Plugin)
+		mapF, reduceF, err := loadPlugin("plugins/wc.so")
 		_ = reduceF // Declarado pero no usado por ahora para evitar error de compilador
 		if err != nil {
 			log.Printf("Error cargando plugin: %v", err)
@@ -105,7 +109,7 @@ func main() {
 				log.Printf("Error ejecutando Map: %v", err)
 				continue
 			}
-
+			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid})
 		case "Reduce":
 			fmt.Println("Ejecutando fase Reduce...")
 

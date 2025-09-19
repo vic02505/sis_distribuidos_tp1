@@ -21,7 +21,10 @@ func CreateInitialSharedResources(fileSplits []string) *SharedResources {
 	}
 
 	return &SharedResources{
-		MappingTasks: mapperTasks,
+		MappingTasks:     mapperTasks,
+		AssignedMapper:   make(map[string]string),
+		ReduceTasks:      make(map[string]string),
+		AssignedReducers: make(map[string]string),
 	}
 }
 
@@ -46,4 +49,10 @@ func (sr *SharedResources) IsThereAvailableWork() bool {
 	}
 
 	return false
+}
+
+func (sr *SharedResources) MarkWorkAsFinished(workerUuid string, workType string) {
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
+	sr.AssignedReducers[workerUuid] = Finished
 }

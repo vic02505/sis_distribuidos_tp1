@@ -21,16 +21,60 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type IFinished struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkerUuid    string                 `protobuf:"bytes,1,opt,name=workerUuid,proto3" json:"workerUuid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IFinished) Reset() {
+	*x = IFinished{}
+	mi := &file_messages_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IFinished) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IFinished) ProtoMessage() {}
+
+func (x *IFinished) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IFinished.ProtoReflect.Descriptor instead.
+func (*IFinished) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *IFinished) GetWorkerUuid() string {
+	if x != nil {
+		return x.WorkerUuid
+	}
+	return ""
+}
+
 type ImFree struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Content       string                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	WorkerUuid    string                 `protobuf:"bytes,1,opt,name=workerUuid,proto3" json:"workerUuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ImFree) Reset() {
 	*x = ImFree{}
-	mi := &file_messages_proto_msgTypes[0]
+	mi := &file_messages_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +86,7 @@ func (x *ImFree) String() string {
 func (*ImFree) ProtoMessage() {}
 
 func (x *ImFree) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[0]
+	mi := &file_messages_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,12 +99,12 @@ func (x *ImFree) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImFree.ProtoReflect.Descriptor instead.
 func (*ImFree) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{0}
+	return file_messages_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ImFree) GetContent() string {
+func (x *ImFree) GetWorkerUuid() string {
 	if x != nil {
-		return x.Content
+		return x.WorkerUuid
 	}
 	return ""
 }
@@ -79,7 +123,7 @@ type AskForWorkResponse struct {
 
 func (x *AskForWorkResponse) Reset() {
 	*x = AskForWorkResponse{}
-	mi := &file_messages_proto_msgTypes[1]
+	mi := &file_messages_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -91,7 +135,7 @@ func (x *AskForWorkResponse) String() string {
 func (*AskForWorkResponse) ProtoMessage() {}
 
 func (x *AskForWorkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[1]
+	mi := &file_messages_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -104,7 +148,7 @@ func (x *AskForWorkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskForWorkResponse.ProtoReflect.Descriptor instead.
 func (*AskForWorkResponse) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{1}
+	return file_messages_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AskForWorkResponse) GetWorkerId() int32 {
@@ -149,23 +193,76 @@ func (x *AskForWorkResponse) GetResponse() string {
 	return ""
 }
 
+type IFinishedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Response      string                 `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IFinishedResponse) Reset() {
+	*x = IFinishedResponse{}
+	mi := &file_messages_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IFinishedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IFinishedResponse) ProtoMessage() {}
+
+func (x *IFinishedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IFinishedResponse.ProtoReflect.Descriptor instead.
+func (*IFinishedResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *IFinishedResponse) GetResponse() string {
+	if x != nil {
+		return x.Response
+	}
+	return ""
+}
+
 var File_messages_proto protoreflect.FileDescriptor
 
 const file_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x0emessages.proto\x12\bmessages\"\"\n" +
-	"\x06ImFree\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\tR\acontent\"\xc2\x01\n" +
+	"\x0emessages.proto\x12\bmessages\"+\n" +
+	"\tIFinished\x12\x1e\n" +
+	"\n" +
+	"workerUuid\x18\x01 \x01(\tR\n" +
+	"workerUuid\"(\n" +
+	"\x06ImFree\x12\x1e\n" +
+	"\n" +
+	"workerUuid\x18\x01 \x01(\tR\n" +
+	"workerUuid\"\xc2\x01\n" +
 	"\x12AskForWorkResponse\x12\x1a\n" +
 	"\bworkerId\x18\x01 \x01(\x05R\bworkerId\x12$\n" +
 	"\rreducerNumber\x18\x02 \x01(\x05R\rreducerNumber\x12\x1a\n" +
 	"\bworkType\x18\x03 \x01(\tR\bworkType\x12\x1a\n" +
 	"\bfilePath\x18\x04 \x01(\tR\bfilePath\x12\x16\n" +
 	"\x06plugin\x18\x05 \x01(\tR\x06plugin\x12\x1a\n" +
-	"\bresponse\x18\x06 \x01(\tR\bresponse2F\n" +
+	"\bresponse\x18\x06 \x01(\tR\bresponse\"/\n" +
+	"\x11IFinishedResponse\x12\x1a\n" +
+	"\bresponse\x18\x01 \x01(\tR\bresponse2\x8e\x01\n" +
 	"\x06Server\x12<\n" +
 	"\n" +
-	"AskForWork\x12\x10.messages.ImFree\x1a\x1c.messages.AskForWorkResponseB\fZ\n" +
+	"AskForWork\x12\x10.messages.ImFree\x1a\x1c.messages.AskForWorkResponse\x12F\n" +
+	"\x12MarkWorkAsFinished\x12\x13.messages.IFinished\x1a\x1b.messages.IFinishedResponseB\fZ\n" +
 	"./messagesb\x06proto3"
 
 var (
@@ -180,16 +277,20 @@ func file_messages_proto_rawDescGZIP() []byte {
 	return file_messages_proto_rawDescData
 }
 
-var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_messages_proto_goTypes = []any{
-	(*ImFree)(nil),             // 0: messages.ImFree
-	(*AskForWorkResponse)(nil), // 1: messages.AskForWorkResponse
+	(*IFinished)(nil),          // 0: messages.IFinished
+	(*ImFree)(nil),             // 1: messages.ImFree
+	(*AskForWorkResponse)(nil), // 2: messages.AskForWorkResponse
+	(*IFinishedResponse)(nil),  // 3: messages.IFinishedResponse
 }
 var file_messages_proto_depIdxs = []int32{
-	0, // 0: messages.Server.AskForWork:input_type -> messages.ImFree
-	1, // 1: messages.Server.AskForWork:output_type -> messages.AskForWorkResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	1, // 0: messages.Server.AskForWork:input_type -> messages.ImFree
+	0, // 1: messages.Server.MarkWorkAsFinished:input_type -> messages.IFinished
+	2, // 2: messages.Server.AskForWork:output_type -> messages.AskForWorkResponse
+	3, // 3: messages.Server.MarkWorkAsFinished:output_type -> messages.IFinishedResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -206,7 +307,7 @@ func file_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_messages_proto_rawDesc), len(file_messages_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

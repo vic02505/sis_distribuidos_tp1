@@ -39,6 +39,7 @@ func (c *Coordinator) StartCoordinator() {
 
 	pb.RegisterServerServer(grpcServer, c.communicationHandler)
 
+	log.Printf("Coordinator listening...")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Error al servir: %v", err)
 	}
