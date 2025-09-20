@@ -17,7 +17,7 @@ type Coordinator struct {
 
 func NewCoordinator(fileSplits []string, reducers uint8) *Coordinator {
 
-	sharedResources := utils.CreateInitialSharedResources(fileSplits)
+	sharedResources := utils.CreateInitialSharedResources(fileSplits, reducers)
 
 	return &Coordinator{
 		communicationHandler: &communicationHandler{sharedResources: sharedResources},

@@ -25,6 +25,7 @@ message AskForWorkResponse{
     string filePath = 4;
     string plugin = 5;
     string response = 6;
+    int32 mapNumber = 7;
 }
 
 message IFinishedResponse {

@@ -125,6 +125,7 @@ type AskForWorkResponse struct {
 	FilePath      string                 `protobuf:"bytes,4,opt,name=filePath,proto3" json:"filePath,omitempty"`
 	Plugin        string                 `protobuf:"bytes,5,opt,name=plugin,proto3" json:"plugin,omitempty"`
 	Response      string                 `protobuf:"bytes,6,opt,name=response,proto3" json:"response,omitempty"`
+	MapNumber     int32                  `protobuf:"varint,7,opt,name=mapNumber,proto3" json:"mapNumber,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,6 +202,13 @@ func (x *AskForWorkResponse) GetResponse() string {
 	return ""
 }
 
+func (x *AskForWorkResponse) GetMapNumber() int32 {
+	if x != nil {
+		return x.MapNumber
+	}
+	return 0
+}
+
 type IFinishedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Response      string                 `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
@@ -258,14 +266,15 @@ const file_messages_proto_rawDesc = "" +
 	"\x06ImFree\x12\x1e\n" +
 	"\n" +
 	"workerUuid\x18\x01 \x01(\tR\n" +
-	"workerUuid\"\xc2\x01\n" +
+	"workerUuid\"\xe0\x01\n" +
 	"\x12AskForWorkResponse\x12\x1a\n" +
 	"\bworkerId\x18\x01 \x01(\x05R\bworkerId\x12$\n" +
 	"\rreducerNumber\x18\x02 \x01(\x05R\rreducerNumber\x12\x1a\n" +
 	"\bworkType\x18\x03 \x01(\tR\bworkType\x12\x1a\n" +
 	"\bfilePath\x18\x04 \x01(\tR\bfilePath\x12\x16\n" +
 	"\x06plugin\x18\x05 \x01(\tR\x06plugin\x12\x1a\n" +
-	"\bresponse\x18\x06 \x01(\tR\bresponse\"/\n" +
+	"\bresponse\x18\x06 \x01(\tR\bresponse\x12\x1c\n" +
+	"\tmapNumber\x18\a \x01(\x05R\tmapNumber\"/\n" +
 	"\x11IFinishedResponse\x12\x1a\n" +
 	"\bresponse\x18\x01 \x01(\tR\bresponse2\x8e\x01\n" +
 	"\x06Server\x12<\n" +

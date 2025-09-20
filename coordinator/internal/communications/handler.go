@@ -19,7 +19,7 @@ func (c *communicationHandler) AskForWork(ctx context.Context, req *pb.ImFree) (
 
 	if availableWork != nil {
 		log.Printf("Worker<%s> wants job", req.WorkerUuid)
-		resp := utils.BuildAskForWorkResponse(*availableWork, int32(*workId), "Map", 1)
+		resp := utils.BuildAskForWorkResponse(*availableWork, int32(*workId), "Map", 3)
 		log.Printf("Assigned job to Worker<%s>", req.WorkerUuid)
 		return resp, nil
 
