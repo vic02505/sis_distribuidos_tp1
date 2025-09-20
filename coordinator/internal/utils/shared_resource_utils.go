@@ -4,8 +4,8 @@ func (sr *SharedResources) getFirstAvailableMappingTask() string {
 
 	var availableTask string
 
-	for fileSplit, state := range sr.MappingTasks {
-		if state == NotAssigned {
+	for fileSplit, task := range sr.tasksMap {
+		if task.taskStatus == NotAssigned {
 			availableTask = fileSplit
 			break
 		}
@@ -15,14 +15,15 @@ func (sr *SharedResources) getFirstAvailableMappingTask() string {
 }
 
 func (sr *SharedResources) isThereAvailableMappingTasks() bool {
-	for _, state := range sr.MappingTasks {
-		if state == NotAssigned {
+	for _, task := range sr.tasksMap {
+		if task.taskStatus == NotAssigned {
 			return true
 		}
 	}
 	return false
 }
 
+/*
 func (sr *SharedResources) isThereAvailableReducingTasks() bool {
 	for _, state := range sr.ReduceTasks {
 		if state == NotAssigned {
@@ -30,4 +31,17 @@ func (sr *SharedResources) isThereAvailableReducingTasks() bool {
 		}
 	}
 	return false
+}
+*/
+
+func (sr *SharedResources) isThereAvailableWork() bool {
+	return sr.isThereAvailableMappingTasks()
+}
+
+func (sr *SharedResources) assignMappingWork(workToAssign, workerUuid string) {
+	task := sr.tasksMap[workToAssign]
+	task.taskStatus = Assigned
+	task.assignedWorker = &workerUuid
+	sr.tasksMap[workToAssign] = task
+
 }

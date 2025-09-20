@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"plugin"
+	"time"
 	"tp1/mr"
 
 	pb "tp1/protocol/messages"
@@ -89,6 +90,8 @@ func main() {
 
 		client := pb.NewServerClient(conn)
 
+		time.Sleep(8 * time.Second)
+
 		resp, err := client.AskForWork(context.Background(), &pb.ImFree{WorkerUuid: workerUuid})
 		if err != nil {
 			log.Printf("Error al solicitar trabajo: %v", err)
@@ -109,7 +112,7 @@ func main() {
 				log.Printf("Error ejecutando Map: %v", err)
 				continue
 			}
-			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid})
+			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath})
 		case "Reduce":
 			fmt.Println("Ejecutando fase Reduce...")
 
