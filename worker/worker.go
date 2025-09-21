@@ -91,7 +91,7 @@ func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId i
 func executeReduceTask(reduceF func(string, []string) string, reduceTaskId int32, nMapTasks int32) error {
 
 	var allKeyValues []mr.KeyValue
-
+	fmt.Printf("DEBUG: reduceTaskId=%d, nMapTasks=%d\n", reduceTaskId, nMapTasks)
 	for mapTaskId := int32(1); mapTaskId <= nMapTasks; mapTaskId++ {
 		filename := fmt.Sprintf("intermediate/mr-%d-%d", mapTaskId, reduceTaskId)
 
@@ -191,6 +191,7 @@ func main() {
 			}
 			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Map"})
 		case "Reduce":
+			fmt.Printf("DEBUG: reduceTaskId=%d, nMapTasks=%d\n", resp.WorkerId, resp.MapNumber)
 			err = executeReduceTask(reduceF, resp.WorkerId, resp.MapNumber)
 			if err != nil {
 				log.Printf("Error ejecutando Reduce: %v", err)

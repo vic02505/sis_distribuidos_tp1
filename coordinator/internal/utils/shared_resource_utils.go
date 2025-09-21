@@ -1,39 +1,41 @@
 package utils
 
-func (sr *SharedResources) getFirstAvailableMappingTask() *string {
+func (sr *SharedResources) getFirstAvailableMappingTask() (*string, *Task) {
 
-	var availableTask *string = nil
+	var taskName string 
+	var taskToDo Task 
 
 	for fileSplit, task := range sr.tasksMap {
-		if task.taskStatus == NotAssigned && task.taskType == Map {
-			aux := fileSplit
-			availableTask = &aux
+		if task.TaskStatus == NotAssigned && task.TaskType == Map {
+			taskName = fileSplit
+			taskToDo = task
 			break
 		}
 	}
 
-	return availableTask
+	return &taskName, &taskToDo
 }
 
-func (sr *SharedResources) getFirstAvailableReduceTask() *string {
+func (sr *SharedResources) getFirstAvailableReduceTask() (*string, *Task) {
 
-	var availableTask *string = nil
+	var taskName string 
+	var taskToDo Task 
 
 	for fileSplit, task := range sr.tasksMap {
-		if task.taskStatus == NotAssigned && task.taskType == Reduce {
-			aux := fileSplit
-			availableTask = &aux
+		if task.TaskStatus == NotAssigned && task.TaskType == Reduce {
+			taskName = fileSplit
+			taskToDo = task
 			break
 		}
 	}
 
-	return availableTask
+	return &taskName, &taskToDo
 }
 
 func (sr *SharedResources) assignTask(workToAssign, workerUuid string) {
 	task := sr.tasksMap[workToAssign]
-	task.taskStatus = Assigned
-	task.assignedWorker = &workerUuid
+	task.TaskStatus = Assigned
+	task.AssignedWorker = &workerUuid
 	sr.tasksMap[workToAssign] = task
 
 }

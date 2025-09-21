@@ -15,11 +15,11 @@ type communicationHandler struct {
 func (c *communicationHandler) AskForWork(ctx context.Context, req *pb.ImFree) (*pb.AskForWorkResponse, error) {
 	log.Printf("Someone asked for work")
 
-	availableWork, workId := c.sharedResources.GetAndAssignAvailableWork(req.WorkerUuid)
+	workToDo := c.sharedResources.GetAndAssignAvailableWork(req.WorkerUuid)
 
-	if availableWork != nil {
+	if workToDo != nil {
 		log.Printf("Worker<%s> wants job", req.WorkerUuid)
-		resp := utils.BuildAskForWorkResponse(*availableWork, int32(*workId), "Map", 3)
+		resp := utils.BuildAskForWorkResponse(workToDo.WorkName, int32(workToDo.Task.TaskId), workToDo.Task.TaskType, workToDo.ReducerAmount)
 		log.Printf("Assigned job to Worker<%s>", req.WorkerUuid)
 		return resp, nil
 

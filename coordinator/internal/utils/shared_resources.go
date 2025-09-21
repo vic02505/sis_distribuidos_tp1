@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-type task struct {
-	taskId         uint8
-	taskType       string
-	taskStatus     string
-	assignedWorker *string
-	timeStamp      time.Time
+type Task struct {
+	TaskId         uint8
+	TaskType       string
+	TaskStatus     string
+	AssignedWorker *string
+	TimeStamp      time.Time
 }
 
 type SharedResources struct {
@@ -20,59 +20,72 @@ type SharedResources struct {
 	mapsToDo      uint8
 	reducesToDo   uint8
 	reducerAmount uint8
-	tasksMap      map[string]task
+	tasksMap      map[string]Task
+}
+
+type WorkToDo struct {
+	WorkName string
+	Task     Task
+	ReducerAmount uint8
 }
 
 func CreateInitialSharedResources(fileSplits []string, reducerAmount uint8) *SharedResources {
 
-	taskMap := make(map[string]task)
+	taskMap := make(map[string]Task)
 
 	i := 1
 	for _, fileSplit := range fileSplits {
-		taskMap[fileSplit] = task{taskId: uint8(i), taskStatus: NotAssigned, assignedWorker: nil,
-			timeStamp: time.Now(), taskType: Map}
+		taskMap[fileSplit] = Task{TaskId: uint8(i), TaskStatus: NotAssigned, AssignedWorker: nil,
+			TimeStamp: time.Now(), TaskType: Map}
 		i += 1
 	}
 
 	reducerNumber := 1
 	for range reducerAmount {
 		fileName := "mr-x-" + strconv.Itoa(reducerNumber)
-		taskMap[fileName] = task{taskId: uint8(reducerNumber), taskStatus: NotAssigned, assignedWorker: nil,
-			timeStamp: time.Now(), taskType: Reduce}
+		taskMap[fileName] = Task{TaskId: uint8(reducerNumber), TaskStatus: NotAssigned, AssignedWorker: nil,
+			TimeStamp: time.Now(), TaskType: Reduce}
 		reducerNumber += 1
 	}
 
 	return &SharedResources{
-		tasksMap: taskMap,
+		tasksMap:      taskMap,
+		mapsToDo:      2,
+		reducesToDo:   1,
+		reducerAmount: reducerAmount,
 	}
 }
 
-func (sr *SharedResources) GetAndAssignAvailableWork(workerUuid string) (*string, *uint8) {
+func (sr *SharedResources) GetAndAssignAvailableWork(workerUuid string) *WorkToDo {
 	sr.mutex.Lock()
 	defer sr.mutex.Unlock()
 
-	var availableWork *string
+	var workName *string
+	var workToDo *Task
 
 	if sr.reducesToDo == 0 {
 		log.Printf("Thre is no more work to do!!")
 	}
 
 	if sr.mapsToDo > 0 {
-		availableWork = sr.getFirstAvailableMappingTask()
+		workName, workToDo = sr.getFirstAvailableMappingTask()
+		log.Printf("DEBUG: availableWork=%s", workName)
 	} else if (sr.mapsToDo == 0) && (sr.reducesToDo > 0) {
-		availableWork = sr.getFirstAvailableReduceTask()
+		workName, workToDo = sr.getFirstAvailableReduceTask()
+		log.Printf("DEBUG: availableWork=%s", workName)
+		
 	} else {
-		return nil, nil
+		return nil
 	}
 
-	if availableWork == nil {
-		return nil, nil
+	if workName == nil || workToDo == nil {
+		return nil
 	}
 
-	sr.assignTask(*availableWork, workerUuid)
-	taskId := sr.tasksMap[*availableWork].taskId
 
-	return availableWork, &taskId
+	sr.assignTask(*workName, workerUuid)
+
+	return &WorkToDo{WorkName: *workName, Task: *workToDo, ReducerAmount: 3}
 }
 
 func (sr *SharedResources) MarkWorkAsFinished(workToMark string, workType string) {
@@ -88,6 +101,6 @@ func (sr *SharedResources) MarkWorkAsFinished(workToMark string, workType string
 	}
 
 	task := sr.tasksMap[workToMark]
-	task.taskStatus = Finished
+	task.TaskStatus = Finished
 	sr.tasksMap[workToMark] = task
 }
