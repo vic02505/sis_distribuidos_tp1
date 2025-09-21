@@ -15,15 +15,15 @@ type Coordinator struct {
 	reducersAmount       uint8
 }
 
-func NewCoordinator(fileSplits []string, reducers uint8) *Coordinator {
+func NewCoordinator(fileSplits []string, reducersAmount uint8) *Coordinator {
 
-	sharedResources := utils.CreateInitialSharedResources(fileSplits, reducers)
+	sharedResources := utils.CreateInitialSharedResources(fileSplits, reducersAmount)
 
 	return &Coordinator{
 		communicationHandler: &communicationHandler{sharedResources: sharedResources},
 		sharedResources:      sharedResources,
 		mappersAmount:        uint8(len(fileSplits)),
-		reducersAmount:       reducers,
+		reducersAmount:       reducersAmount,
 	}
 }
 

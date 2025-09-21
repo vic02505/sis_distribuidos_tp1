@@ -24,8 +24,8 @@ type SharedResources struct {
 }
 
 type WorkToDo struct {
-	WorkName string
-	Task     Task
+	WorkName      string
+	Task          Task
 	ReducerAmount uint8
 }
 
@@ -50,8 +50,8 @@ func CreateInitialSharedResources(fileSplits []string, reducerAmount uint8) *Sha
 
 	return &SharedResources{
 		tasksMap:      taskMap,
-		mapsToDo:      2,
-		reducesToDo:   1,
+		mapsToDo:      uint8(len(fileSplits)),
+		reducesToDo:   reducerAmount,
 		reducerAmount: reducerAmount,
 	}
 }
@@ -63,25 +63,20 @@ func (sr *SharedResources) GetAndAssignAvailableWork(workerUuid string) *WorkToD
 	var workName *string
 	var workToDo *Task
 
-	if sr.reducesToDo == 0 {
-		log.Printf("Thre is no more work to do!!")
-	}
-
 	if sr.mapsToDo > 0 {
 		workName, workToDo = sr.getFirstAvailableMappingTask()
-		log.Printf("DEBUG: availableWork=%s", workName)
+		log.Printf("DEBUG: availableWork=%s", *workName)
 	} else if (sr.mapsToDo == 0) && (sr.reducesToDo > 0) {
 		workName, workToDo = sr.getFirstAvailableReduceTask()
-		log.Printf("DEBUG: availableWork=%s", workName)
-		
+		log.Printf("DEBUG: availableWork=%s", *workName)
 	} else {
+		log.Printf("There is no more work to do!!")
 		return nil
 	}
 
 	if workName == nil || workToDo == nil {
 		return nil
 	}
-
 
 	sr.assignTask(*workName, workerUuid)
 
