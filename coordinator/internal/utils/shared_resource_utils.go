@@ -1,12 +1,13 @@
 package utils
 
-func (sr *SharedResources) getFirstAvailableMappingTask() string {
+func (sr *SharedResources) getFirstAvailableMappingTask() *string {
 
-	var availableTask string
+	var availableTask *string = nil
 
 	for fileSplit, task := range sr.tasksMap {
-		if task.taskStatus == NotAssigned {
-			availableTask = fileSplit
+		if task.taskStatus == NotAssigned && task.taskType == Map {
+			aux := fileSplit
+			availableTask = &aux
 			break
 		}
 	}
@@ -14,31 +15,22 @@ func (sr *SharedResources) getFirstAvailableMappingTask() string {
 	return availableTask
 }
 
-func (sr *SharedResources) isThereAvailableMappingTasks() bool {
-	for _, task := range sr.tasksMap {
-		if task.taskStatus == NotAssigned {
-			return true
+func (sr *SharedResources) getFirstAvailableReduceTask() *string {
+
+	var availableTask *string = nil
+
+	for fileSplit, task := range sr.tasksMap {
+		if task.taskStatus == NotAssigned && task.taskType == Reduce {
+			aux := fileSplit
+			availableTask = &aux
+			break
 		}
 	}
-	return false
+
+	return availableTask
 }
 
-/*
-func (sr *SharedResources) isThereAvailableReducingTasks() bool {
-	for _, state := range sr.ReduceTasks {
-		if state == NotAssigned {
-			return true
-		}
-	}
-	return false
-}
-*/
-
-func (sr *SharedResources) isThereAvailableWork() bool {
-	return sr.isThereAvailableMappingTasks()
-}
-
-func (sr *SharedResources) assignMappingWork(workToAssign, workerUuid string) {
+func (sr *SharedResources) assignTask(workToAssign, workerUuid string) {
 	task := sr.tasksMap[workToAssign]
 	task.taskStatus = Assigned
 	task.assignedWorker = &workerUuid

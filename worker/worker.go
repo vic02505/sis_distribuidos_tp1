@@ -48,109 +48,108 @@ func ihash(key string) int {
 }
 
 func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId int32, reducerNumber int32) error {
-    content, err := ioutil.ReadFile(filePath)
-    if err != nil {
-        return fmt.Errorf("error leyendo archivo %s: %v", filePath, err)
-    }
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error leyendo archivo %s: %v", filePath, err)
+	}
 
-    mapResult := mapF(string(content))
+	mapResult := mapF(string(content))
 
-    fmt.Printf("DEBUG: workerId=%d, reducerNumber=%d, mapResult length=%d\n", 
-               workerId, reducerNumber, len(mapResult))
-    
-    if reducerNumber <= 0 {
-        return fmt.Errorf("reducerNumber debe ser mayor que 0, recibido: %d", reducerNumber)
-    }
+	fmt.Printf("DEBUG: workerId=%d, reducerNumber=%d, mapResult length=%d\n",
+		workerId, reducerNumber, len(mapResult))
 
-    tempFiles := make([]*os.File, reducerNumber)
-    for i := int32(0); i < reducerNumber; i++ {
-        tempFileName := fmt.Sprintf("intermediate/mr-%d-%d", workerId, i)
-        tempFiles[i], err = os.Create(tempFileName)
-        if err != nil {
-            return fmt.Errorf("error creando archivo temporal %s: %v", tempFileName, err)
-        }
-        defer tempFiles[i].Close()
-    }
+	if reducerNumber <= 0 {
+		return fmt.Errorf("reducerNumber debe ser mayor que 0, recibido: %d", reducerNumber)
+	}
 
-    for _, kv := range mapResult {
-        hashValue := ihash(kv.Key)
-        reduceIndex := hashValue % int(reducerNumber)
-        
-        fmt.Printf("DEBUG: key='%s', hash=%d, reduceIndex=%d\n", 
-                   kv.Key, hashValue, reduceIndex)
-        
-        _, err = tempFiles[reduceIndex].WriteString(fmt.Sprintf("%s %s\n", kv.Key, kv.Value))
-        if err != nil {
-            return fmt.Errorf("error escribiendo en archivo temporal: %v", err)
-        }
-    }
+	tempFiles := make([]*os.File, reducerNumber)
+	for i := int32(0); i < reducerNumber; i++ {
+		tempFileName := fmt.Sprintf("intermediate/mr-%d-%d", workerId, i)
+		tempFiles[i], err = os.Create(tempFileName)
+		if err != nil {
+			return fmt.Errorf("error creando archivo temporal %s: %v", tempFileName, err)
+		}
+		defer tempFiles[i].Close()
+	}
 
-    return nil
+	for _, kv := range mapResult {
+		hashValue := ihash(kv.Key)
+		reduceIndex := hashValue % int(reducerNumber)
+
+		fmt.Printf("DEBUG: key='%s', hash=%d, reduceIndex=%d\n",
+			kv.Key, hashValue, reduceIndex)
+
+		_, err = tempFiles[reduceIndex].WriteString(fmt.Sprintf("%s %s\n", kv.Key, kv.Value))
+		if err != nil {
+			return fmt.Errorf("error escribiendo en archivo temporal: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func executeReduceTask(reduceF func(string, []string) string, reduceTaskId int32, nMapTasks int32) error {
-    
-    var allKeyValues []mr.KeyValue
-    
-    for mapTaskId := int32(1); mapTaskId <= nMapTasks; mapTaskId++ {
-        filename := fmt.Sprintf("intermediate/mr-%d-%d", mapTaskId, reduceTaskId)
-        
-        content, err := ioutil.ReadFile(filename)
-        if err != nil {
-            log.Printf("Error leyendo %s: %v", filename, err)
-            continue 
-        }
-        
-        keyValues := parseIntermediateFile(string(content))
-        allKeyValues = append(allKeyValues, keyValues...)
-    }
-    
-    grouped := groupByKey(allKeyValues)
-    
-    outputFile := fmt.Sprintf("output/mr-out-%d", reduceTaskId)
-    file, err := os.Create(outputFile)
-    if err != nil {
-        return fmt.Errorf("error creando archivo de salida: %v", err)
-    }
-    defer file.Close()
-    
-    for key, values := range grouped {
-        result := reduceF(key, values)
-        file.WriteString(fmt.Sprintf("%s %s\n", key, result))
-    }
-    
-    return nil
+
+	var allKeyValues []mr.KeyValue
+
+	for mapTaskId := int32(1); mapTaskId <= nMapTasks; mapTaskId++ {
+		filename := fmt.Sprintf("intermediate/mr-%d-%d", mapTaskId, reduceTaskId)
+
+		content, err := ioutil.ReadFile(filename)
+		if err != nil {
+			log.Printf("Error leyendo %s: %v", filename, err)
+			continue
+		}
+
+		keyValues := parseIntermediateFile(string(content))
+		allKeyValues = append(allKeyValues, keyValues...)
+	}
+
+	grouped := groupByKey(allKeyValues)
+
+	outputFile := fmt.Sprintf("output/mr-out-%d", reduceTaskId)
+	file, err := os.Create(outputFile)
+	if err != nil {
+		return fmt.Errorf("error creando archivo de salida: %v", err)
+	}
+	defer file.Close()
+
+	for key, values := range grouped {
+		result := reduceF(key, values)
+		file.WriteString(fmt.Sprintf("%s %s\n", key, result))
+	}
+
+	return nil
 }
 
 func parseIntermediateFile(content string) []mr.KeyValue {
-    var keyValues []mr.KeyValue
-    lines := strings.Split(content, "\n")
-    
-    for _, line := range lines {
-        if line == "" {
-            continue
-        }
-        parts := strings.Split(line, " ")
-        if len(parts) == 2 {
-            keyValues = append(keyValues, mr.KeyValue{
-                Key:   parts[0],
-                Value: parts[1],
-            })
-        }
-    }
-    
-    return keyValues
+	var keyValues []mr.KeyValue
+	lines := strings.Split(content, "\n")
+
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		parts := strings.Split(line, " ")
+		if len(parts) == 2 {
+			keyValues = append(keyValues, mr.KeyValue{
+				Key:   parts[0],
+				Value: parts[1],
+			})
+		}
+	}
+
+	return keyValues
 }
 
-
 func groupByKey(keyValues []mr.KeyValue) map[string][]string {
-    grouped := make(map[string][]string)
-    
-    for _, kv := range keyValues {
-        grouped[kv.Key] = append(grouped[kv.Key], kv.Value)
-    }
-    
-    return grouped
+	grouped := make(map[string][]string)
+
+	for _, kv := range keyValues {
+		grouped[kv.Key] = append(grouped[kv.Key], kv.Value)
+	}
+
+	return grouped
 }
 
 func main() {
@@ -177,7 +176,7 @@ func main() {
 		}
 
 		mapF, reduceF, err := loadPlugin("plugins/wc.so")
-		
+
 		if err != nil {
 			log.Printf("Error cargando plugin: %v", err)
 			continue
@@ -190,7 +189,7 @@ func main() {
 				log.Printf("Error ejecutando Map: %v", err)
 				continue
 			}
-			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath})
+			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Map"})
 		case "Reduce":
 			err = executeReduceTask(reduceF, resp.WorkerId, resp.MapNumber)
 			if err != nil {

@@ -25,6 +25,7 @@ type IFinished struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WorkerUuid    string                 `protobuf:"bytes,1,opt,name=workerUuid,proto3" json:"workerUuid,omitempty"`
 	WorkFinished  string                 `protobuf:"bytes,2,opt,name=workFinished,proto3" json:"workFinished,omitempty"`
+	WorkType      string                 `protobuf:"bytes,3,opt,name=workType,proto3" json:"workType,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -69,6 +70,13 @@ func (x *IFinished) GetWorkerUuid() string {
 func (x *IFinished) GetWorkFinished() string {
 	if x != nil {
 		return x.WorkFinished
+	}
+	return ""
+}
+
+func (x *IFinished) GetWorkType() string {
+	if x != nil {
+		return x.WorkType
 	}
 	return ""
 }
@@ -257,12 +265,13 @@ var File_messages_proto protoreflect.FileDescriptor
 
 const file_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x0emessages.proto\x12\bmessages\"O\n" +
+	"\x0emessages.proto\x12\bmessages\"k\n" +
 	"\tIFinished\x12\x1e\n" +
 	"\n" +
 	"workerUuid\x18\x01 \x01(\tR\n" +
 	"workerUuid\x12\"\n" +
-	"\fworkFinished\x18\x02 \x01(\tR\fworkFinished\"(\n" +
+	"\fworkFinished\x18\x02 \x01(\tR\fworkFinished\x12\x1a\n" +
+	"\bworkType\x18\x03 \x01(\tR\bworkType\"(\n" +
 	"\x06ImFree\x12\x1e\n" +
 	"\n" +
 	"workerUuid\x18\x01 \x01(\tR\n" +

@@ -12,6 +12,7 @@ service Server{
 message IFinished{
     string workerUuid = 1;
     string workFinished = 2;
+    string workType = 3;
 }
 
 message ImFree{

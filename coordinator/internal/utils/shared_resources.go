@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"log"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -32,15 +34,13 @@ func CreateInitialSharedResources(fileSplits []string, reducerAmount uint8) *Sha
 		i += 1
 	}
 
-	/*
-		reducerNumber := 1
-		for range reducerAmount {
-			fileName := "mr-x-"+strconv.Itoa(reducerNumber)
-			taskMap[fileName] = task{taskId: uint8(reducerNumber), taskStatus: NotAssigned, assignedWorker: nil,
-				timeStamp: time.Now(), taskType: Reduce}
-			reducerNumber += 1
-		}
-	*/
+	reducerNumber := 1
+	for range reducerAmount {
+		fileName := "mr-x-" + strconv.Itoa(reducerNumber)
+		taskMap[fileName] = task{taskId: uint8(reducerNumber), taskStatus: NotAssigned, assignedWorker: nil,
+			timeStamp: time.Now(), taskType: Reduce}
+		reducerNumber += 1
+	}
 
 	return &SharedResources{
 		tasksMap: taskMap,
@@ -51,22 +51,42 @@ func (sr *SharedResources) GetAndAssignAvailableWork(workerUuid string) (*string
 	sr.mutex.Lock()
 	defer sr.mutex.Unlock()
 
-	if !sr.isThereAvailableWork() {
+	var availableWork *string
+
+	if sr.reducesToDo == 0 {
+		log.Printf("Thre is no more work to do!!")
+	}
+
+	if sr.mapsToDo > 0 {
+		availableWork = sr.getFirstAvailableMappingTask()
+	} else if (sr.mapsToDo == 0) && (sr.reducesToDo > 0) {
+		availableWork = sr.getFirstAvailableReduceTask()
+	} else {
 		return nil, nil
 	}
 
-	availableWork := sr.getFirstAvailableMappingTask()
+	if availableWork == nil {
+		return nil, nil
+	}
 
-	sr.assignMappingWork(availableWork, workerUuid)
+	sr.assignTask(*availableWork, workerUuid)
+	taskId := sr.tasksMap[*availableWork].taskId
 
-	taskId := sr.tasksMap[availableWork].taskId
-
-	return &availableWork, &taskId
+	return availableWork, &taskId
 }
 
-func (sr *SharedResources) MarkWorkAsFinished(workToMark string) {
+func (sr *SharedResources) MarkWorkAsFinished(workToMark string, workType string) {
 	sr.mutex.Lock()
 	defer sr.mutex.Unlock()
+
+	if workType == Map && sr.mapsToDo > 0 {
+		sr.mapsToDo -= 1
+	}
+
+	if workType == Reduce && sr.reducesToDo > 0 {
+		sr.reducesToDo -= 1
+	}
+
 	task := sr.tasksMap[workToMark]
 	task.taskStatus = Finished
 	sr.tasksMap[workToMark] = task
