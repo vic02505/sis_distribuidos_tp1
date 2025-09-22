@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 	"tp1/mr"
+	"path/filepath"
 
 	"github.com/google/uuid"
 
@@ -64,7 +65,7 @@ func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId i
 
 	tempFiles := make([]*os.File, reducerNumber)
 	for i := int32(0); i < reducerNumber; i++ {
-		tempFileName := fmt.Sprintf("intermediate/mr-%d-%d", workerId, i)
+		tempFileName := fmt.Sprintf("intermediate/mr-%d-%d", workerId, i+1)
 		tempFiles[i], err = os.Create(tempFileName)
 		if err != nil {
 			return fmt.Errorf("error creando archivo temporal %s: %v", tempFileName, err)
@@ -90,20 +91,28 @@ func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId i
 
 func executeReduceTask(reduceF func(string, []string) string, reduceTaskId int32, nMapTasks int32) error {
 
-	var allKeyValues []mr.KeyValue
-	fmt.Printf("DEBUG: reduceTaskId=%d, nMapTasks=%d\n", reduceTaskId, nMapTasks)
-	for mapTaskId := int32(1); mapTaskId <= nMapTasks; mapTaskId++ {
-		filename := fmt.Sprintf("intermediate/mr-%d-%d", mapTaskId, reduceTaskId)
-
-		content, err := ioutil.ReadFile(filename)
-		if err != nil {
-			log.Printf("Error leyendo %s: %v", filename, err)
-			continue
-		}
-
-		keyValues := parseIntermediateFile(string(content))
-		allKeyValues = append(allKeyValues, keyValues...)
-	}
+	pattern := fmt.Sprintf("intermediate/mr-*-%d", reduceTaskId)
+    files, err := filepath.Glob(pattern)
+    if err != nil {
+        return fmt.Errorf("error buscando archivos con patrón %s: %v", pattern, err)
+    }
+    
+    fmt.Printf("DEBUG: Encontrados %d archivos: %v\n", len(files), files)
+    
+    var allKeyValues []mr.KeyValue
+    
+    for _, filename := range files {
+        fmt.Printf("DEBUG: Leyendo archivo: %s\n", filename)
+        
+        content, err := ioutil.ReadFile(filename)
+        if err != nil {
+            log.Printf("Error leyendo %s: %v", filename, err)
+            continue
+        }
+        
+        keyValues := parseIntermediateFile(string(content))
+        allKeyValues = append(allKeyValues, keyValues...)
+    }
 
 	grouped := groupByKey(allKeyValues)
 
