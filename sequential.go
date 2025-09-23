@@ -34,7 +34,7 @@ func main() {
 		log.Fatalf("Error encontrando función Reduce: %v", err)
 	}
 
-	mapF := mapFunc.(func(string) []mr.KeyValue)
+	mapF := mapFunc.(func(string, string) []mr.KeyValue)
 	reduceF := reduceFunc.(func(string, []string) string)
 
 	fmt.Println("Ejecutando fase Map...")
@@ -48,7 +48,7 @@ func main() {
 			log.Fatalf("Error leyendo %s: %v", filename, err)
 		}
 
-		kva := mapF(string(content))
+		kva := mapF(filename, string(content))
 		intermediate = append(intermediate, kva...)
 	}
 
@@ -74,14 +74,15 @@ func main() {
 	}
 	defer file.Close()
 
-	
+
 	for _, key := range keys {
 		values := groups[key]
 		result := reduceF(key, values)
-		
+
 		fmt.Fprintf(file, "%v %v\n", key, result)
 	}
 
 	fmt.Printf("Resultado guardado en %s\n", outputFile)
 	fmt.Printf("Procesadas %d claves únicas de %d pares totales\n", len(keys), len(intermediate))
 }
+

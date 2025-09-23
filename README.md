@@ -16,20 +16,35 @@ directorio internal (el cual contiene toda la lógica necesaria para que puedan 
 
 6. **Directorio _mr_**: Contiene tipos comunes compartidos entre el sistema y los plugins.
 
-## Ejecución de la versión secuencial
+## Como usar
 
 
 ### Pasos para ejecutar
 
-1. **Compilar el plugin de word count:**
+1. **Compilar los plugins:**
    ```bash
    cd plugins/
-   go build -buildmode=plugin wc.go
+   go build -buildmode=plugin tu_plugin.go
    cd ..
    ```
 
 2. **Ejecutar la versión secuencial:**
    ```bash
-   go run sequential.go plugins/wc.so archivos_entrada...
+   go run sequential.go plugins/tu_plugin.so archivos_entrada...
    ```
 
+3. **Ejecutar la version distribuida:**
+   - En una terminal, iniciar el coordinator:
+     ```bash
+     go run coordinator.go cant_reducers archivos_entrada...
+     ```
+   - En otras terminales, iniciar los workers:
+     ```bash
+     go run worker.go plugins/tu_plugin.so
+     ```
+4. **Ejecutar los tests:**
+   ```bash
+   cd tests/
+   go run test_runner.go
+   cd ..
+   ```

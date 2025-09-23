@@ -9,7 +9,6 @@ import (
 	"os"
 	"plugin"
 	"strings"
-	"time"
 	"tp1/mr"
 	"path/filepath"
 
@@ -187,7 +186,6 @@ func main() {
 
 		client := pb.NewServerClient(conn)
 
-		time.Sleep(1 * time.Second)
 
 		resp, err := client.AskForWork(context.Background(), &pb.ImFree{WorkerUuid: workerUuid})
 		if err != nil {

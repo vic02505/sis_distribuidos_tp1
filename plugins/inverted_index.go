@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"sort"
 	"strings"
 	"tp1/mr"
 )
@@ -43,6 +44,8 @@ func Reduce(key string, values []string) string {
 	for doc := range docMap {
 		docs = append(docs, doc)
 	}
+
+	sort.Strings(docs)
 
 	// Retornar como string separado por comas
 	return strings.Join(docs, ",")
