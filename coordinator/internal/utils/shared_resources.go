@@ -99,3 +99,10 @@ func (sr *SharedResources) MarkWorkAsFinished(workToMark string, workType string
 	task.TaskStatus = Finished
 	sr.tasksMap[workToMark] = task
 }
+
+func (sr *SharedResources) IsAllWorkCompleted() bool {
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
+
+	return sr.mapsToDo == 0 && sr.reducesToDo == 0
+}

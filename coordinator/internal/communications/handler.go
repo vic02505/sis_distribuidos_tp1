@@ -10,6 +10,7 @@ import (
 type communicationHandler struct {
 	pb.UnimplementedServerServer
 	sharedResources *utils.SharedResources
+	shutdownChan    chan bool
 }
 
 func (c *communicationHandler) AskForWork(ctx context.Context, req *pb.ImFree) (*pb.AskForWorkResponse, error) {
@@ -32,5 +33,13 @@ func (c *communicationHandler) AskForWork(ctx context.Context, req *pb.ImFree) (
 func (c *communicationHandler) MarkWorkAsFinished(ctx context.Context, req *pb.IFinished) (*pb.IFinishedResponse, error) {
 	log.Printf("A worker finished a job")
 	c.sharedResources.MarkWorkAsFinished(req.WorkFinished, req.WorkType)
+
+	if c.sharedResources.IsAllWorkCompleted() {
+		select {
+		case c.shutdownChan <- true:
+		default:
+		}
+	}
+
 	return &pb.IFinishedResponse{Response: "OK"}, nil
 }

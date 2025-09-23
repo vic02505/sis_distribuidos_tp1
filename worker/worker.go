@@ -170,16 +170,21 @@ func main() {
 		conn, err := grpc.Dial("unix://"+socketPath, grpc.WithInsecure())
 		if err != nil {
 			log.Printf("Error conectando al coordinator: %v", err)
-			continue
+			return
 		}
 		defer conn.Close()
 
 		client := pb.NewServerClient(conn)
 
-		time.Sleep(8 * time.Second)
+		time.Sleep(1 * time.Second)
 
 		resp, err := client.AskForWork(context.Background(), &pb.ImFree{WorkerUuid: workerUuid})
 		if err != nil {
+            if strings.Contains(err.Error(), "connection") &&
+               strings.Contains(err.Error(), "Unavailable") {
+                log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+                return
+            }
 			log.Printf("Error al solicitar trabajo: %v", err)
 			continue
 		}
@@ -198,7 +203,16 @@ func main() {
 				log.Printf("Error ejecutando Map: %v", err)
 				continue
 			}
-			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Map"})
+			_, err = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Map"})
+			if err != nil {
+                if strings.Contains(err.Error(), "connection") &&
+                   strings.Contains(err.Error(), "Unavailable") {
+                    log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+                    return
+                }
+                log.Printf("Error marcando Map como terminado: %v", err)
+                continue
+            }
 		case "Reduce":
 			fmt.Printf("DEBUG: reduceTaskId=%d, nMapTasks=%d\n", resp.WorkerId, resp.MapNumber)
 			err = executeReduceTask(reduceF, resp.WorkerId, resp.MapNumber)
@@ -206,7 +220,16 @@ func main() {
 				log.Printf("Error ejecutando Reduce: %v", err)
 				continue
 			}
-			_, _ = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath})
+			_, err = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Reduce"})
+            if err != nil {
+                if strings.Contains(err.Error(), "connection") &&
+                   strings.Contains(err.Error(), "Unavailable") {
+                    log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+                    return
+                }
+                log.Printf("Error marcando Reduce como terminado: %v", err)
+                continue
+            }
 
 		case "Work finished":
 			fmt.Println("Trabajo completado")
