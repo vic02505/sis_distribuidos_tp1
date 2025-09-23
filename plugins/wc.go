@@ -7,7 +7,7 @@ import (
 )
 
 
-func Map(content string) []mr.KeyValue{ 
+func Map(filename string, content string) []mr.KeyValue{
 	words := strings.Fields(content)
 	var wordCount []mr.KeyValue
 	for _, word := range words {

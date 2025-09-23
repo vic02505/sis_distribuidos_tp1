@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func loadPlugin(pluginPath string) (func(string) []mr.KeyValue, func(string, []string) string, error) {
+func loadPlugin(pluginPath string) (func(string, string) []mr.KeyValue, func(string, []string) string, error) {
 	plug, err := plugin.Open(pluginPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error abriendo plugin %s: %v", pluginPath, err)
@@ -36,7 +36,7 @@ func loadPlugin(pluginPath string) (func(string) []mr.KeyValue, func(string, []s
 		return nil, nil, fmt.Errorf("error encontrando función Reduce: %v", err)
 	}
 
-	mapF := mapFunc.(func(string) []mr.KeyValue)
+	mapF := mapFunc.(func(string, string) []mr.KeyValue)
 	reduceF := reduceFunc.(func(string, []string) string)
 
 	return mapF, reduceF, nil
@@ -48,13 +48,13 @@ func ihash(key string) int {
 	return int(h.Sum32() & 0x7fffffff)
 }
 
-func executeMapTask(mapF func(string) []mr.KeyValue, filePath string, workerId int32, reducerNumber int32) error {
+func executeMapTask(mapF func(string, string) []mr.KeyValue, filePath string, workerId int32, reducerNumber int32) error {
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("error leyendo archivo %s: %v", filePath, err)
 	}
 
-	mapResult := mapF(string(content))
+	mapResult := mapF(filePath, string(content))
 
 	fmt.Printf("DEBUG: workerId=%d, reducerNumber=%d, mapResult length=%d\n",
 		workerId, reducerNumber, len(mapResult))
@@ -163,7 +163,18 @@ func groupByKey(keyValues []mr.KeyValue) map[string][]string {
 
 func main() {
 
+	if len(os.Args) < 2 {
+		log.Fatal("Uso: go run worker/worker.go <plugin.so>")
+	}
+
+	pluginPath := os.Args[1]
+	// Si no incluye la ruta, asumo que está en plugins/
+	if !strings.Contains(pluginPath, "/") {
+		pluginPath = "plugins/" + pluginPath
+	}
+
 	workerUuid := uuid.New().String()
+	log.Printf("Worker %s iniciando con plugin: %s", workerUuid, pluginPath)
 
 	socketPath := "/tmp/mr-socket.sock"
 	for {
@@ -189,7 +200,7 @@ func main() {
 			continue
 		}
 
-		mapF, reduceF, err := loadPlugin("plugins/wc.so")
+		mapF, reduceF, err := loadPlugin(pluginPath)
 
 		if err != nil {
 			log.Printf("Error cargando plugin: %v", err)
