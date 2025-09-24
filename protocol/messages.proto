@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package messages;
+option go_package = "./messages";
+
+service Server{
+    rpc AskForWork(ImFree) returns (AskForWorkResponse);
+    rpc MarkWorkAsFinished(IFinished) returns(IFinishedResponse);
+}
+
+
+message IFinished{
+    string workerUuid = 1;
+    string workFinished = 2;
+    string workType = 3;
+}
+
+message ImFree{
+    string workerUuid = 1;
+}
+
+message AskForWorkResponse{
+    int32 workerId = 1;
+    int32 reducerNumber = 2;
+    string workType = 3;
+    string filePath = 4;
+    string plugin = 5;
+    string response = 6;
+    int32 mapNumber = 7;
+}
+
+message IFinishedResponse {
+    string response = 1;
+}
