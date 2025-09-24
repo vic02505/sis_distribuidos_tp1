@@ -12,7 +12,7 @@ type Task struct {
 	TaskType       string
 	TaskStatus     string
 	AssignedWorker *string
-	TimeStamp      time.Time
+	TimeStamp      *time.Time
 }
 
 type SharedResources struct {
@@ -36,7 +36,7 @@ func CreateInitialSharedResources(fileSplits []string, reducerAmount uint8) *Sha
 	i := 1
 	for _, fileSplit := range fileSplits {
 		taskMap[fileSplit] = Task{TaskId: uint8(i), TaskStatus: NotAssigned, AssignedWorker: nil,
-			TimeStamp: time.Now(), TaskType: Map}
+			TimeStamp: nil, TaskType: Map}
 		i += 1
 	}
 
@@ -44,7 +44,7 @@ func CreateInitialSharedResources(fileSplits []string, reducerAmount uint8) *Sha
 	for range reducerAmount {
 		fileName := "mr-x-" + strconv.Itoa(reducerNumber)
 		taskMap[fileName] = Task{TaskId: uint8(reducerNumber), TaskStatus: NotAssigned, AssignedWorker: nil,
-			TimeStamp: time.Now(), TaskType: Reduce}
+			TimeStamp: nil, TaskType: Reduce}
 		reducerNumber += 1
 	}
 
@@ -65,10 +65,8 @@ func (sr *SharedResources) GetAndAssignAvailableWork(workerUuid string) *WorkToD
 
 	if sr.mapsToDo > 0 {
 		workName, workToDo = sr.getFirstAvailableMappingTask()
-		log.Printf("DEBUG: availableWork=%s", *workName)
 	} else if (sr.mapsToDo == 0) && (sr.reducesToDo > 0) {
 		workName, workToDo = sr.getFirstAvailableReduceTask()
-		log.Printf("DEBUG: availableWork=%s", *workName)
 	} else {
 		log.Printf("There is no more work to do!!")
 		return nil

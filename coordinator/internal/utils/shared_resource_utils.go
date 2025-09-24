@@ -1,6 +1,9 @@
 package utils
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 func (sr *SharedResources) getFirstAvailableMappingTask() (*string, *Task) {
 
@@ -8,10 +11,17 @@ func (sr *SharedResources) getFirstAvailableMappingTask() (*string, *Task) {
 	var taskToDo Task
 
 	for fileSplit, task := range sr.tasksMap {
-		if task.TaskStatus == NotAssigned && task.TaskType == Map {
+		if (task.TaskType == Map) && (task.TaskStatus == NotAssigned) {
 			taskName = fileSplit
 			taskToDo = task
 			break
+		} else if (task.TaskType == Map) && (task.TimeStamp != nil) && (task.TaskStatus == Assigned) {
+			if time.Since(*task.TimeStamp) > 10*time.Second {
+				log.Printf("A worker died!")
+				taskName = fileSplit
+				taskToDo = task
+				break
+			}
 		}
 	}
 
@@ -24,10 +34,17 @@ func (sr *SharedResources) getFirstAvailableReduceTask() (*string, *Task) {
 	var taskToDo Task
 
 	for fileSplit, task := range sr.tasksMap {
-		if task.TaskStatus == NotAssigned && task.TaskType == Reduce {
+		if (task.TaskType == Reduce) && (task.TaskStatus == NotAssigned) {
 			taskName = fileSplit
 			taskToDo = task
 			break
+		} else if (task.TaskType == Reduce) && (task.TimeStamp != nil) && (task.TaskStatus == Assigned) {
+			if time.Since(*task.TimeStamp) > 10*time.Second {
+				log.Printf("A worker died!")
+				taskName = fileSplit
+				taskToDo = task
+				break
+			}
 		}
 	}
 
@@ -35,9 +52,12 @@ func (sr *SharedResources) getFirstAvailableReduceTask() (*string, *Task) {
 }
 
 func (sr *SharedResources) assignTask(workToAssign, workerUuid string) {
+
+	currentTime := time.Now()
+
 	task := sr.tasksMap[workToAssign]
 	task.TaskStatus = Assigned
-	task.TimeStamp = time.Now()
+	task.TimeStamp = &currentTime
 	task.AssignedWorker = &workerUuid
 	sr.tasksMap[workToAssign] = task
 

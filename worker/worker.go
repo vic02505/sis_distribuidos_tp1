@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"plugin"
 	"strings"
+	"time"
 	"tp1/mr"
-	"path/filepath"
 
 	"github.com/google/uuid"
 
@@ -91,27 +92,27 @@ func executeMapTask(mapF func(string, string) []mr.KeyValue, filePath string, wo
 func executeReduceTask(reduceF func(string, []string) string, reduceTaskId int32, nMapTasks int32) error {
 
 	pattern := fmt.Sprintf("intermediate/mr-*-%d", reduceTaskId)
-    files, err := filepath.Glob(pattern)
-    if err != nil {
-        return fmt.Errorf("error buscando archivos con patrón %s: %v", pattern, err)
-    }
-    
-    fmt.Printf("DEBUG: Encontrados %d archivos: %v\n", len(files), files)
-    
-    var allKeyValues []mr.KeyValue
-    
-    for _, filename := range files {
-        fmt.Printf("DEBUG: Leyendo archivo: %s\n", filename)
-        
-        content, err := ioutil.ReadFile(filename)
-        if err != nil {
-            log.Printf("Error leyendo %s: %v", filename, err)
-            continue
-        }
-        
-        keyValues := parseIntermediateFile(string(content))
-        allKeyValues = append(allKeyValues, keyValues...)
-    }
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		return fmt.Errorf("error buscando archivos con patrón %s: %v", pattern, err)
+	}
+
+	fmt.Printf("DEBUG: Encontrados %d archivos: %v\n", len(files), files)
+
+	var allKeyValues []mr.KeyValue
+
+	for _, filename := range files {
+		fmt.Printf("DEBUG: Leyendo archivo: %s\n", filename)
+
+		content, err := ioutil.ReadFile(filename)
+		if err != nil {
+			log.Printf("Error leyendo %s: %v", filename, err)
+			continue
+		}
+
+		keyValues := parseIntermediateFile(string(content))
+		allKeyValues = append(allKeyValues, keyValues...)
+	}
 
 	grouped := groupByKey(allKeyValues)
 
@@ -177,7 +178,9 @@ func main() {
 
 	socketPath := "/tmp/mr-socket.sock"
 	for {
+
 		conn, err := grpc.Dial("unix://"+socketPath, grpc.WithInsecure())
+
 		if err != nil {
 			log.Printf("Error conectando al coordinator: %v", err)
 			return
@@ -186,14 +189,13 @@ func main() {
 
 		client := pb.NewServerClient(conn)
 
-
 		resp, err := client.AskForWork(context.Background(), &pb.ImFree{WorkerUuid: workerUuid})
 		if err != nil {
-            if strings.Contains(err.Error(), "connection") &&
-               strings.Contains(err.Error(), "Unavailable") {
-                log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
-                return
-            }
+			if strings.Contains(err.Error(), "connection") &&
+				strings.Contains(err.Error(), "Unavailable") {
+				log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+				return
+			}
 			log.Printf("Error al solicitar trabajo: %v", err)
 			continue
 		}
@@ -207,6 +209,8 @@ func main() {
 
 		switch resp.WorkType {
 		case "Map":
+			log.Printf("Working...")
+			time.Sleep(5 * time.Second)
 			err = executeMapTask(mapF, resp.FilePath, resp.WorkerId, resp.ReducerNumber)
 			if err != nil {
 				log.Printf("Error ejecutando Map: %v", err)
@@ -214,15 +218,17 @@ func main() {
 			}
 			_, err = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Map"})
 			if err != nil {
-                if strings.Contains(err.Error(), "connection") &&
-                   strings.Contains(err.Error(), "Unavailable") {
-                    log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
-                    return
-                }
-                log.Printf("Error marcando Map como terminado: %v", err)
-                continue
-            }
+				if strings.Contains(err.Error(), "connection") &&
+					strings.Contains(err.Error(), "Unavailable") {
+					log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+					return
+				}
+				log.Printf("Error marcando Map como terminado: %v", err)
+				continue
+			}
 		case "Reduce":
+			log.Printf("Working...")
+			time.Sleep(5 * time.Second)
 			fmt.Printf("DEBUG: reduceTaskId=%d, nMapTasks=%d\n", resp.WorkerId, resp.MapNumber)
 			err = executeReduceTask(reduceF, resp.WorkerId, resp.MapNumber)
 			if err != nil {
@@ -230,15 +236,15 @@ func main() {
 				continue
 			}
 			_, err = client.MarkWorkAsFinished(context.Background(), &pb.IFinished{WorkerUuid: workerUuid, WorkFinished: resp.FilePath, WorkType: "Reduce"})
-            if err != nil {
-                if strings.Contains(err.Error(), "connection") &&
-                   strings.Contains(err.Error(), "Unavailable") {
-                    log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
-                    return
-                }
-                log.Printf("Error marcando Reduce como terminado: %v", err)
-                continue
-            }
+			if err != nil {
+				if strings.Contains(err.Error(), "connection") &&
+					strings.Contains(err.Error(), "Unavailable") {
+					log.Printf("Worker %s - Coordinator parece cerrado, terminando", workerUuid)
+					return
+				}
+				log.Printf("Error marcando Reduce como terminado: %v", err)
+				continue
+			}
 
 		case "Work finished":
 			fmt.Println("Trabajo completado")
